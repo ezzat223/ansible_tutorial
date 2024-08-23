@@ -4,23 +4,10 @@
   become: true
   tasks:
 
-  - name: Update repository index then install latest apache2 package and PHP support for apache on Ubuntu and Debian
-    ansible.builtin.apt:
-      update_cache: yes
+  - name: Update repository index then install latest apache and PHP packages.
+    package:
       name: 
-        - apache2
-        - libapache2-mod-php
+        - "{{ apache_package }}"
+        - "{{ php_package  }}"
       state: latest
-    when: ansible_distribution in ["Ubuntu", "Debian"]
-
-      
-    # ---------------------------------- RedHat ---------------------------- #
-  - name: Update repository index then install latest apache2 package and PHP support for apache on RedHat
-    ansible.builtin.yum:
       update_cache: yes
-      name: 
-        - httpd
-        - php
-      state: latest
-    when: ansible_distribution == "RedHat"
-
