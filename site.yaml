@@ -25,7 +25,7 @@
       name:
         - "{{ apache_package }}"
         - "{{ php_package }}"
-    state: latest
+      state: latest
 
 
 - hosts: db_servers
