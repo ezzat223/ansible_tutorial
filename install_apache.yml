@@ -4,13 +4,32 @@
   become: true
   tasks:
 
-  - name: update repository index then install apache2 package
+  - name: Update repository index then install latest apache2 package on Ubuntu
     ansible.builtin.apt:
       update_cache: yes
       name: apache2
       state: latest
+    when: ansible_distribution == "Ubuntu"
 
-  - name: Add PHP support for apache
+
+  - name: Add latest PHP support for apache on Ubuntu and Debian
     ansible.builtin.apt:
       name: libapache2-mod-php
       state: latest
+    when: ansible_distribution in ["Ubuntu", "Debian"]
+      
+    # ---------------------------------- RedHat ---------------------------- #
+  - name: Update repository index then install latest apache2 package on RedHat
+    ansible.builtin.yum:
+      update_cache: yes
+      name: httpd
+      state: latest
+    when: ansible_distribution == "RedHat"
+
+
+  - name: Add latest PHP support for apache on RedHat
+    ansible.builtin.yum:
+      name: php
+      state: latest
+    when: ansible_distribution == "RedHat"
+

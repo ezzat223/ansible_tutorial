@@ -1,4 +1,5 @@
 [all]
 192.168.1.2 ansible_user=shehab
 192.168.1.6 ansible_user=shehab
-
+50.17.53.222 ansible_user=ubuntu
+52.90.1.32 ansible_user=ec2-user
