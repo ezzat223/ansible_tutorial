@@ -34,5 +34,6 @@
 
   - name: Install latest mariaDB on db_servers.
     package:
-      - "{{ db_name }}"
-    state: latest
+      name:
+        - "{{ db_name }}"
+      state: latest
