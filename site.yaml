@@ -16,11 +16,12 @@
       update_cache: yes 
     when: ansible_distribution == "RedHat"
 
+# ---------------- web_servers ---------------- #
 - hosts: web_servers
   become: true 
   tasks:
 
-  - name: Install latest apache and PHP on web_servers.
+  - name: Install latest apache and PHP on web_servers
     package:
       name:
         - "{{ apache_package }}"
@@ -28,12 +29,25 @@
       state: latest
 
 
+# ----------------- db_servers ----------------- #
 - hosts: db_servers
   become: true 
   tasks:
 
-  - name: Install latest mariaDB on db_servers.
+  - name: Install latest mariaDB on db_servers
     package:
       name:
         - "{{ db_name }}"
+      state: latest
+
+
+# ----------------- file_servers ----------------- #
+- hosts: file_servers
+  become: true
+  tasks
+
+  - name: Install latest samba package on file_servers
+    package:
+      name:
+        - samba
       state: latest
