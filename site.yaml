@@ -5,12 +5,14 @@
   pre_tasks:
 
   - name: Install updates on Ubuntu and Debian.
+    tags: always
     package:
       upgrade: dist
       update_cache: yes
     when: ansible_distribution in ["Ubuntu", "Debian"]
   
   - name: Install updates on RedHat
+    tags: always
     package:
       update_only: yes 
       update_cache: yes 
@@ -22,6 +24,7 @@
   tasks:
 
   - name: Install latest apache and PHP on web_servers
+    tags: apache,apache2,httpd,php
     package:
       name:
         - "{{ apache_package }}"
@@ -35,6 +38,7 @@
   tasks:
 
   - name: Install latest mariaDB on db_servers
+    tags: db,mariadb
     package:
       name:
         - "{{ db_name }}"
@@ -44,9 +48,10 @@
 # ----------------- file_servers ----------------- #
 - hosts: file_servers
   become: true
-  tasks
+  tasks:
 
   - name: Install latest samba package on file_servers
+    tags: samba
     package:
       name:
         - samba
