@@ -1,5 +1,5 @@
 [db_servers]
-192.168.1.2 db_name=mariadb-server
+192.168.1.2 
 
 [workstations]
 192.168.1.6 
@@ -8,7 +8,7 @@
 50.17.53.222
 
 [web_servers]
-52.90.1.32 apache_package=httpd php_package=php
+52.90.1.32 
 
 
 

@@ -13,22 +13,14 @@
     dest: /var/www/html/index.html
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
 
 # Start apache or httpd ------
-- name: Start httpd on RedHat and CentOS
+- name: Start httpd or apache
   service:
-    name: httpd
+    name: "{{ apache_service }}"
     state: started
     enabled: yes
-  when: ansible_distribution in ["RedHat", "CentOS"]
-
-- name: Start apache2 on Ubuntu and Debian
-  service:
-    name: apache2
-    state: started
-    enabled: yes
-  when: ansible_distribution in ["Ubuntu", "Debian"]
 
 
 # change email address for admin and register result (changed, ok, or failed) in a variable called httpd ------
@@ -37,14 +29,8 @@
   lineinfile:
     path: /etc/httpd/conf/httpd.conf
     regex: '^ServerAdmin'
-    line: ServerAdmin ezzat22hegazy@gmail.com
+    line: ServerAdmin shehab_hegazy@yahoo.com
   when: ansible_distribution in ["RedHat", "CentOS"]
-  register: httpd
+  notify: restart_apache # call handler ONLY if result of this play is changed
 
 
-# restart apache or httpd if email changed (httpd variable) ------
-- name: restart httpd 
-  service:
-    name: httpd
-    state: restarted
-  when: httpd.changed
