@@ -4,19 +4,42 @@
   become: true
   pre_tasks:
 
-  - name: Install updates on Ubuntu and Debian.
+  - name: Update repository index and Install updates on Ubuntu and Debian
     tags: always
     package:
       upgrade: dist
       update_cache: yes
     when: ansible_distribution in ["Ubuntu", "Debian"]
   
-  - name: Install updates on RedHat
+  - name: Update repository index and Install updates on RedHat and CentOS
     tags: always
     package:
       update_only: yes 
       update_cache: yes 
-    when: ansible_distribution == "RedHat"
+    when: ansible_distribution in ["RedHat", "CentOS"]
+
+
+# ---------------- workstations ---------------- #
+- hosts: workstations
+  become: true 
+  tasks:
+
+  - name: Install unzip
+    package: 
+      name:
+        - unzip
+      state: latest
+  
+  - name: install terraform
+    unarchive:
+      src: https://releases.hashicrop.com/terraform/0.12.28/terraform_0.12.28_linux_amd64.zip
+      dest: /usr/local/bin
+      remote_src: yes
+      mode: 0755
+      owner: root
+      group: root
+
+
 
 # ---------------- web_servers ---------------- #
 - hosts: web_servers
@@ -39,6 +62,41 @@
       owner: root
       group: root
       mode: 0644
+  
+  # Start apache or httpd ------
+  - name: Start httpd on RedHat and CentOS
+    service:
+      name: httpd
+      state: started
+      enabled: yes
+    when: ansible_distribution in ["RedHat", "CentOS"]
+
+  - name: Start apache2 on Ubuntu and Debian
+    service:
+      name: apache2
+      state: started
+      enabled: yes
+    when: ansible_distribution in ["Ubuntu", "Debian"]
+  
+
+  # change email address for admin and register result (changed, ok, or failed) in a variable called httpd ------
+  - name: change email address for admin for RedHat and CentOS
+    tags: apache,centos,httpd,redhat
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regex: '^ServerAdmin'
+      line: ServerAdmin ezzat22hegazy@gmail.com
+    when: ansible_distribution in ["RedHat", "CentOS"]
+    register: httpd
+
+
+  # restart apache or httpd if email changed (httpd variable) ------
+  - name: restart httpd 
+    service:
+      name: httpd
+      state: restarted
+    when: httpd.changed
+
 
 
 # ----------------- db_servers ----------------- #
