@@ -1,0 +1,135 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: Update repository index (cache) on Ubuntu and Debian
+    tags: always
+    package:
+      update_cache: yes
+    changed_when: false # allows you to have control over what is considered a change, here we're just updating the cache (repository index like apt update) which is always going to result in changes! and it's not going to affect what we're doing! So consider it no change no matter what
+    when: ansible_distribution in ["Ubuntu", "Debian"]
+  
+  - name: Update repository index (cache) on RedHat and CentOS
+    tags: always
+    package:
+      update_cache: yes 
+    changed_when: false 
+    when: ansible_distribution in ["RedHat", "CentOS"]
+  
+    # ----------- Make sure public key is added to sudoer user from bootstrap -------------- #
+  # so you can connect to that machine using that user as he has the public key
+  # Still leave it here although it exists in the boostrap, so you can have Key Management (eg: change the key)
+  - name: Add SSH Public Key for simone user in authorized_key file
+    tags: always,ssh
+    authorized_key:
+      user: simone
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPwOZz/n5jW93L8xx9jTAQMtcZgtMOKxjFGVjYW/N8/o Ansible"
+      state: present  # Ensures the key is added if it's not already there to avoid duplicates.
+
+
+# ---------------- workstations ---------------- #
+- hosts: workstations
+  become: true 
+  tasks:
+
+  - name: Install unzip
+    package: 
+      name:
+        - unzip
+      state: latest
+  
+#  - name: install terraform
+#    unarchive:
+#      src: https://releases.hashicrop.com/terraform/0.12.28/terraform_0.12.28_linux_amd64.zip
+#      dest: /usr/local/bin
+#      remote_src: yes
+#      mode: 0755
+#      owner: root
+#      group: root
+
+
+
+# ---------------- web_servers ---------------- #
+- hosts: web_servers
+  become: true 
+  tasks:
+
+  - name: Install latest apache and PHP on web_servers
+    tags: apache,apache2,httpd,php
+    package:
+      name:
+        - "{{ apache_package }}"
+        - "{{ php_package }}"
+      state: latest
+
+  - name: Copy default HTML file for site
+    tags: apache,apache2,httpd
+    copy: 
+      src: default_site.html
+      dest: /var/www/html/index.html
+      owner: root
+      group: root
+      mode: 0644
+  
+  # Start apache or httpd ------
+  - name: Start httpd on RedHat and CentOS
+    service:
+      name: httpd
+      state: started
+      enabled: yes
+    when: ansible_distribution in ["RedHat", "CentOS"]
+
+  - name: Start apache2 on Ubuntu and Debian
+    service:
+      name: apache2
+      state: started
+      enabled: yes
+    when: ansible_distribution in ["Ubuntu", "Debian"]
+  
+
+  # change email address for admin and register result (changed, ok, or failed) in a variable called httpd ------
+  - name: change email address for admin for RedHat and CentOS
+    tags: apache,centos,httpd,redhat
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regex: '^ServerAdmin'
+      line: ServerAdmin ezzat22hegazy@gmail.com
+    when: ansible_distribution in ["RedHat", "CentOS"]
+    register: httpd
+
+
+  # restart apache or httpd if email changed (httpd variable) ------
+  - name: restart httpd 
+    service:
+      name: httpd
+      state: restarted
+    when: httpd.changed
+
+
+
+# ----------------- db_servers ----------------- #
+- hosts: db_servers
+  become: true 
+  tasks:
+
+  - name: Install latest mariaDB on db_servers
+    tags: db,mariadb
+    package:
+      name:
+        - "{{ db_name }}"
+      state: latest
+
+
+# ----------------- file_servers ----------------- #
+- hosts: file_servers
+  become: true
+  tasks:
+
+  - name: Install latest samba package on file_servers
+    tags: samba
+    package:
+      name:
+        - samba
+      state: latest

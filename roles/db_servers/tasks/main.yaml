@@ -1,0 +1,6 @@
+- name: Install latest mariaDB on db_servers
+  tags: db,mariadb
+  package:
+    name:
+      - "{{ db_name }}"
+    state: latest
