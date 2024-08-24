@@ -4,18 +4,18 @@
   become: true
   pre_tasks:
 
-  - name: Update repository index and Install updates on Ubuntu and Debian
+  - name: Update repository index (cache) on Ubuntu and Debian
     tags: always
     package:
       update_cache: yes
-    changed_when: false
+    changed_when: false # allows you to have control over what is considered a change, here we're just updating the cache (repository index like apt update) which is always going to result in changes! and it's not going to affect what we're doing! So consider it no change no matter what
     when: ansible_distribution in ["Ubuntu", "Debian"]
   
-  - name: Update repository index and Install updates on RedHat and CentOS
+  - name: Update repository index (cache) on RedHat and CentOS
     tags: always
     package:
       update_cache: yes 
-    changed_when: false # allows you to have control over what is considered a change, here we're just updating the cache (repository index like apt update) which is always going to result in changes! and it's not going to affect what we're doing! So consider it no change no matter what
+    changed_when: false 
     when: ansible_distribution in ["RedHat", "CentOS"]
   
     # ----------- Make sure public key is added to sudoer user from bootstrap -------------- #
