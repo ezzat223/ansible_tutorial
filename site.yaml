@@ -24,10 +24,12 @@
   roles:
     - base
 
+
 - hosts: workstations
   become: true 
   roles:
     - workstations
+
 
 - hosts: web_servers
   become: true 
