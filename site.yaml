@@ -17,6 +17,15 @@
       update_only: yes 
       update_cache: yes 
     when: ansible_distribution in ["RedHat", "CentOS"]
+  
+    # ----------- Make sure public key is added to sudoer user from bootstrap -------------- #
+  # so you can connect to that machine using that user as he has the public key
+  - name: Add SSH Public Key for simone user in authorized_key file
+    tags: always,ssh
+    authorized_key:
+      user: simone
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPwOZz/n5jW93L8xx9jTAQMtcZgtMOKxjFGVjYW/N8/o Ansible"
+      state: present  # Ensures the key is added if it's not already there to avoid duplicates.
 
 
 # ---------------- workstations ---------------- #
@@ -123,34 +132,3 @@
       name:
         - samba
       state: latest
-
-
-# ---------------- add users ---------------- #
-- hosts: all
-  become: true
-  tasks:
-
-  - name: Create simone user on all hosts then add it to the root group
-    tags: useradd
-    user:
-      name: simone
-      append: yes  # Ensures the user is added to the root group without removing from other groups
-      groups: root
-      state: present # Ensures the user is created if they don't already exist to avoid errors.
-
-  - name: Add SSH Public Key for simone user in authorized_key file
-    tags: always,ssh
-    authorized_key:
-      user: simone
-      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPwOZz/n5jW93L8xx9jTAQMtcZgtMOKxjFGVjYW/N8/o Ansible"
-      state: present  # Ensures the key is added if it's not already there to avoid duplicates.
-
-  # to be able to use sudo without a password
-  - name: Add sudoers file for simone
-    tags: always,sudoers
-    copy:
-      src: sudoer_simone
-      dest: /etc/sudoers.d/simone
-      owner: root
-      group: root
-      mode: '0440'
