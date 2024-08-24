@@ -9,3 +9,6 @@
 
 [web_servers]
 52.90.1.32 ansible_user=ec2-user apache_package=httpd php_package=php
+
+
+
