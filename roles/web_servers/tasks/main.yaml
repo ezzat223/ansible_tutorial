@@ -29,7 +29,7 @@
   lineinfile:
     path: /etc/httpd/conf/httpd.conf
     regex: '^ServerAdmin'
-    line: ServerAdmin ezzat22hegazy@gmail.com
+    line: ServerAdmin shehab_hegazy@yahoo.com
   when: ansible_distribution in ["RedHat", "CentOS"]
   notify: restart_apache # call handler ONLY if result of this play is changed
 
