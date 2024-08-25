@@ -2,4 +2,4 @@ db_name: mariadb-server
 ssh_users: 
   - shehab
   - siomne
-ssh_template_file: sshd_config_ubuntu.js
+ssh_template_file: sshd_config_ubuntu.j2
