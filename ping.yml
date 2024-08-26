@@ -1,0 +1,8 @@
+---
+
+- hosts: all
+  become: true
+  tasks:
+
+  - name: Ping test for semaphore
+    ping:
