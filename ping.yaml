@@ -1,0 +1,7 @@
+---
+- name: Ping all hosts to verify connectivity  # Added play name
+  hosts: all
+  become: true
+  tasks:
+    - name: Ping test for semaphore
+      ansible.builtin.ping:  # Using FQCN for ping module

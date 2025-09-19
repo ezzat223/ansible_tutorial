@@ -3,7 +3,6 @@
 - hosts: all
   become: true
   pre_tasks:
-
   - name: Update repository index (cache) on Ubuntu and Debian
     tags: always
     package:

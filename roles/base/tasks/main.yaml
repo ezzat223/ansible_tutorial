@@ -1,6 +1,9 @@
     # ----------- Make sure public key is added to sudoer user from bootstrap -------------- #
   # so you can connect to that machine using that user as he has the public key
   # Still leave it here although it exists in the boostrap, so you can have Key Management (eg: change the key)
+
+---
+
 - name: Add SSH Public Key for simone user in authorized_key file
   tags: always,ssh
   authorized_key:

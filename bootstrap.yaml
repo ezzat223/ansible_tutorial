@@ -1,49 +1,49 @@
 ---
-
-- hosts: all
+- name: Bootstrap all servers
+  hosts: all
   become: true
-  pre_tasks:
-
+  pre_tasks:             # Tasks that run before any roles are applied
   # ----------- Updates -------------- #
-  - name: Update repository index and Install updates on Ubuntu and Debian
-    tags: always
-    package:
-      upgrade: dist
-      update_cache: yes
-    when: ansible_distribution in ["Ubuntu", "Debian"]
-  
+  - name: Update repository index and Install updates on Ubuntu and Debian  # Task description
+    tags: always         # This task will run whenever the 'always' tag is used or no tags specified
+    package:            # Generic package management module
+      upgrade: dist     # Performs full distribution upgrade (equivalent to 'apt dist-upgrade')
+      update_cache: yes # Updates package cache first (equivalent to 'apt update')
+    when: ansible_distribution in ["Ubuntu", "Debian"]  # Conditional: only runs on these distros
   - name: Update repository index and Install updates on RedHat and CentOS
     tags: always
     package:
-      update_only: yes 
-      update_cache: yes 
-    when: ansible_distribution in ["RedHat", "CentOS"]
-
-
+      update_only: yes   # Only updates existing packages (doesn't install new dependencies)
+      update_cache: yes  # Updates package cache (equivalent to 'yum makecache')
+    when: ansible_distribution in ["RedHat", "CentOS"]  # Conditional for RedHat-based systems
     # ----------- Add a sudoer user and SSH Key for him -------------- #
   - name: Create simone user on all hosts then add it to the root group
-    tags: useradd
-    user:
-      name: simone
-      append: yes  # Ensures the user is added to the root group without removing from other groups
-      groups: root
-      state: present # Ensures the user is created if they don't already exist to avoid errors.
-
-
-  # so you can connect to that machine using that user as he has the public key
+    tags: useradd       # Can use --tags useradd to run just this task
+    user:              # User management module
+      name: simone     # Username to create
+      append: yes      # Add to groups without removing from existing groups
+      groups: root     # Add user to root group
+      state: present   # Ensure user exists (create if not present)
+  ## so you can connect to that machine using that user as he has the public key
   - name: Add SSH Public Key for simone user in authorized_key file
-    tags: always,ssh
-    authorized_key:
-      user: simone
-      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPwOZz/n5jW93L8xx9jTAQMtcZgtMOKxjFGVjYW/N8/o Ansible"
-      state: present  # Ensures the key is added if it's not already there to avoid duplicates.
-
-  # to be able to use sudo without a password
+    tags: always,ssh    # Task runs with either 'always' or 'ssh' tag
+    authorized_key:     # Module for managing SSH authorized_keys
+      user: simone      # User to add the key for
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBDqrVNNLlc7B3XvRsb3Z1u6mBkHvcmU6xZtwr/v7FRQ simone"  # The actual SSH public key to add
+      state: present    # Ensure key exists (add if not present)
+  ## to be able to use sudo without a password
   - name: Add sudoers file for simone
-    tags: always,sudoers
-    copy:
-      src: sudoer_simone
-      dest: /etc/sudoers.d/simone
-      owner: root
-      group: root
-      mode: '0440'
+    tags: always,sudoers  # Task runs with either 'always' or 'sudoers' tag
+    copy:                # File copy module
+      src: sudoer_simone # Source file in playbook directory
+      dest: /etc/sudoers.d/simone  # Destination path on remote system
+      owner: root        # File owner
+      group: root        # File group
+      mode: '0440'       # File permissions (r--r----- required for sudoers files)
+
+### Usage:
+## Run all tasks:
+# >ansible-playbook bootstrap.yaml
+
+## Run specific tagged tasks:
+# >ansible-playbook bootstrap.yaml --tags "ssh,sudoers"

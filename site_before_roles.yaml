@@ -1,14 +1,14 @@
+
 ---
 
 - hosts: all
   become: true
   pre_tasks:
-
-  - name: Update repository index (cache) on Ubuntu and Debian
-    tags: always
-    package:
-      update_cache: yes
-    changed_when: false # allows you to have control over what is considered a change, here we're just updating the cache (repository index like apt update) which is always going to result in changes! and it's not going to affect what we're doing! So consider it no change no matter what
+  - name: Update repository index (cache) on Ubuntu and Debian   # Task description
+    tags: always    # This task will run whenever the playbook runs (not skippable with tags)
+    package:        # Generic package management module
+      update_cache: yes   # Updates package cache (like 'apt update')
+    changed_when: false   # Forces Ansible to report this task as "ok" instead of "changed". This allows you to have control over what is considered a change, here we're just updating the cache (repository index like apt update) which is always going to result in changes! and it's not going to affect what we're doing! So consider it no change no matter what
     when: ansible_distribution in ["Ubuntu", "Debian"]
   
   - name: Update repository index (cache) on RedHat and CentOS
@@ -33,7 +33,6 @@
 - hosts: workstations
   become: true 
   tasks:
-
   - name: Install unzip
     package: 
       name:
@@ -55,7 +54,6 @@
 - hosts: web_servers
   become: true 
   tasks:
-
   - name: Install latest apache and PHP on web_servers
     tags: apache,apache2,httpd,php
     package:
@@ -90,22 +88,22 @@
   
 
   # change email address for admin and register result (changed, ok, or failed) in a variable called httpd ------
-  - name: change email address for admin for RedHat and CentOS
-    tags: apache,centos,httpd,redhat
-    lineinfile:
-      path: /etc/httpd/conf/httpd.conf
-      regex: '^ServerAdmin'
-      line: ServerAdmin ezzat22hegazy@gmail.com
-    when: ansible_distribution in ["RedHat", "CentOS"]
-    register: httpd
+  - name: change email address for admin for RedHat and CentOS   # Task description
+    tags: apache,centos,httpd,redhat    # Multiple tags for filtering when running playbook
+    lineinfile:                         # Module to modify a specific line in a file
+      path: /etc/httpd/conf/httpd.conf  # Apache config file location on RedHat/CentOS
+      regex: '^ServerAdmin'             # Regular expression to find line starting with 'ServerAdmin'
+      line: ServerAdmin ezzat22hegazy@gmail.com  # The new line to replace the matched line
+    when: ansible_distribution in ["RedHat", "CentOS"]  # Only run on RedHat/CentOS systems
+    register: httpd    # Store the result of this task in a variable named 'httpd'
 
 
   # restart apache or httpd if email changed (httpd variable) ------
-  - name: restart httpd 
-    service:
-      name: httpd
-      state: restarted
-    when: httpd.changed
+  - name: restart httpd     # Task description
+    service:             # Module for managing services
+      name: httpd        # The service to manage (Apache on RedHat/CentOS)
+      state: restarted   # Desired state (restart the service)
+    when: httpd.changed  # Only restart if the previous task changed the config file
 
 
 
@@ -113,7 +111,6 @@
 - hosts: db_servers
   become: true 
   tasks:
-
   - name: Install latest mariaDB on db_servers
     tags: db,mariadb
     package:
@@ -126,7 +123,6 @@
 - hosts: file_servers
   become: true
   tasks:
-
   - name: Install latest samba package on file_servers
     tags: samba
     package:

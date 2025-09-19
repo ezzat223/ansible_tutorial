@@ -3,11 +3,12 @@
 - hosts: all
   become: true
   tasks:
-
   - name: Update repository index then install latest apache and PHP packages.
-    package:
+    package:   # Uses the generic package module instead of specific ones like apt or yum.
       name: 
         - "{{ apache_package }}"
         - "{{ php_package  }}"
-      state: latest
-      update_cache: yes
+      state: latest # Ensures that the latest version of the packages are installed or if already exists then update it.
+      update_cache: yes  # Ensures the package index is updated before installation (like: apt update).
+
+## To run it: >ansible-playbook install_apache.yaml -i inventory_1
